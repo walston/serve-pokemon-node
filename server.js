@@ -5,11 +5,10 @@ const database = require("./sql");
 const app = new Koa();
 const router = new Router();
 
-router.get("/type-chart", async (ctx, next) => {
+router.get("/type-chart", async (ctx) => {
   return database.getTypechart().then((rows) => {
     ctx.response.statusCode = 200;
     ctx.response.body = rows;
-    next();
   });
 });
 
