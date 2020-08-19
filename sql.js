@@ -18,6 +18,34 @@ function getTypechart() {
   });
 }
 
+/**
+ * @param {string} type1
+ * @param {string=} type2
+ */
+function getTypeWeaknesses(type1, type2) {
+  const QUERY = `SELECT damage_factor as damagePercentage, defender.name AS type
+                 FROM type_efficacy
+                 JOIN (SELECT * FROM type_names WHERE local_language_id = 9)
+                     AS defender ON type_efficacy.target_type_id = defender.type_id
+                 JOIN (SELECT * FROM type_names WHERE local_language_id = 9)
+                     AS attacker ON type_efficacy.damage_type_id = attacker.type_id
+                 WHERE attacker.name = ?;
+  `;
+  return new Promise((resolve, reject) => {
+    database.all(QUERY, [type1], (err, rows) => {
+      if (err) return reject(err);
+
+      let efficacy = {};
+      for (const { damagePercentage, type } of rows) {
+        efficacy[type] = damagePercentage;
+      }
+
+      return resolve(efficacy);
+    });
+  });
+}
+
 module.exports = {
   getTypechart,
+  getTypeWeaknesses,
 };
